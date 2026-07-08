@@ -23,6 +23,8 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Header from "../components/Header/Header";
 import AppBreadcrumbs from "../components/Breadcrumbs/AppBreadcrumbs";
 import PsychologyIcon from "@mui/icons-material/Psychology";
+import SchoolIcon from "@mui/icons-material/School";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 
 const drawerWidth = 260;
 
@@ -38,11 +40,12 @@ const menuIndustrial = [
 
 const menuIA = [
     { label: "Anomalias", icon: <WarningIcon />, path: "/anomalias" },
-    { label: "Conhecimento da IA", icon: <PsychologyIcon />, path: "/conhecimento-ia" },
+   { label: "Dashboard da IA", icon: <PsychologyIcon />, path: "/conhecimento-ia" },
+    { label: "Biblioteca da IA", icon: <AutoStoriesIcon />, path: "/biblioteca-conhecimento" }
 ];
 
 const menuSistema = [
-    { label: "Configurações", icon: <SettingsIcon />, path: "/configuracoes" },
+  { label: "Configurações da IA", icon: <SettingsIcon />, path: "/central-ia" },
 ];
 
 function MainLayout() {

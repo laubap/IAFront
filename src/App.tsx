@@ -11,6 +11,8 @@ import Tags from "./pages/Tags/Tags";
 import CadastrarTag from "./pages/Tags/CadastrarTag";
 import CadastrarProcesso from "./pages/Processos/CadastrarProcesso";
 import ConhecimentoIA from "./pages/ConhecimentoIA/ConhecimentoIA";
+import CentralIA from "./pages/CentralIA/CentralIA";
+import BibliotecaConhecimento from "./pages/BibliotecaConhecimento/BibliotecaConhecimento";
 
 function App() {
     return (
@@ -27,6 +29,8 @@ function App() {
                 <Route path="tags/cadastrar" element={<CadastrarTag />} />
                 <Route path="processos/cadastrar" element={<CadastrarProcesso />} />
                 <Route path="conhecimento-ia" element={<ConhecimentoIA />} />
+                <Route path="central-ia" element={<CentralIA />} />
+                <Route path="biblioteca-conhecimento" element={<BibliotecaConhecimento />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />
