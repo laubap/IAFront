@@ -50,7 +50,7 @@ interface AcaoIA {
 }
 
 function CentralIA() {
-    const clienteId = "PK2";
+    const clienteId = "PK7";
 
     const [config, setConfig] = useState<ConfiguracaoIA>({
         horasHistorico: 24,

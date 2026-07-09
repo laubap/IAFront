@@ -141,7 +141,7 @@ function Dashboard() {
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <StatusCard titulo="Cliente" valor="PK2" cor="#06B6D4" />
+                    <StatusCard titulo="Cliente" valor="PK7" cor="#06B6D4" />
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 6 }}>

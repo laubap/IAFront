@@ -38,7 +38,7 @@ function PriorityPanel({ prioridades }: PriorityPanelProps) {
         },
         {
             tipo: "tag",
-            titulo: "PK2.TAG7",
+            titulo: "PK7.TAG7",
             descricao: "Tag treinada e vinculada ao equipamento principal.",
             nivel: "baixo",
         },

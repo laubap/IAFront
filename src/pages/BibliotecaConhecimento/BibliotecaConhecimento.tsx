@@ -36,7 +36,7 @@ type ItemSelecionado =
     | null;
 
 function BibliotecaConhecimento() {
-    const clienteId = "PK2";
+    const clienteId = "PK7";
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [categoriaAberta, setCategoriaAberta] = useState<number | null>(null);

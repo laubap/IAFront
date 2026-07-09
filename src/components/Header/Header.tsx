@@ -260,7 +260,7 @@ function Header() {
                         </Menu>
 
                         <Chip
-                            label="Cliente: PK2"
+                            label="Cliente: PK7"
                             sx={{
                                 backgroundColor: "#1F2937",
                                 color: "#E5E7EB",

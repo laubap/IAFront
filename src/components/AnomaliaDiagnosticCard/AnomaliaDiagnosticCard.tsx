@@ -25,6 +25,7 @@ export interface AnomaliaDiagnostic {
     tendenciaRisco: string | null;
     tendenciaValor: string | null;
     feedbackSemelhante: FeedbackSemelhante | null;
+    dataDeteccao: string;
 }
 
 interface Props {
@@ -55,7 +56,11 @@ function AnomaliaDiagnosticCard({ anomalia, onRegistrarCausa }: Props) {
                 tendencia={anomalia.tendenciaValor}
             />
 
-            <TendenciaAnomaliaCard tagName={anomalia.tagName} horas={6} />
+                <TendenciaAnomaliaCard
+        tagName={anomalia.tagName}
+        horas={6}
+        dataAnomalia={anomalia.dataDeteccao}
+    />
 
             <ConhecimentoIaCard feedback={anomalia.feedbackSemelhante} />
 

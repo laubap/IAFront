@@ -24,6 +24,8 @@ import TagContextoDialog from "../../components/TagContextoDialog/TagContextoDia
 
 function CadastrarTag() {
     const { clienteId, tags, carregandoTags } = useCliente();
+    console.log("Tags do contexto:", tags);
+console.log("Carregando:", carregandoTags);
 
     const [tagName, setTagName] = useState("");
     const [mensagem, setMensagem] = useState("");

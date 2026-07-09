@@ -34,27 +34,26 @@ export function ClienteProvider({
     children: ReactNode;
 }) {
     // futuramente esse valor virá do login
-    const clienteId = "PK2";
+    const clienteId = "PK7";
 
     const [tags, setTags] = useState<BridgeTag[]>([]);
     const [carregandoTags, setCarregandoTags] = useState(true);
 
-    async function atualizarTags() {
-        try {
-            setCarregandoTags(true);
+async function atualizarTags() {
+    try {
+        setCarregandoTags(true);
 
-            const response = await api.get(
-                `/tags/bridge/${clienteId}`
-            );
+        const response = await api.get(`/tags/bridge/${clienteId}`);
 
-            setTags(response.data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setCarregandoTags(false);
-        }
+        console.log("Tags recebidas:", response.data);
+
+        setTags(response.data);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setCarregandoTags(false);
     }
-
+}
     useEffect(() => {
         atualizarTags();
     }, []);
