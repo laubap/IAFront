@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
     Box,
     Button,
@@ -6,6 +6,8 @@ import {
     CardContent,
     Chip,
     Collapse,
+    FormControlLabel,
+    Switch,
     Table,
     TableBody,
     TableCell,
@@ -45,29 +47,46 @@ interface Anomalia {
     tendenciaValor: string | null;
     dataDeteccao: string;
     feedbackSemelhante: FeedbackSemelhante | null;
+    status: number;
 }
 
 function Anomalias() {
     const [anomalias, setAnomalias] = useState<Anomalia[]>([]);
-    const [diagnosticoAberto, setDiagnosticoAberto] = useState<number | null>(null);
+    const [diagnosticoAberto, setDiagnosticoAberto] = useState<number | null>(
+        null
+    );
     const [dialogFeedback, setDialogFeedback] = useState(false);
-    const [anomaliaSelecionada, setAnomaliaSelecionada] = useState<Anomalia | null>(null);
+    const [anomaliaSelecionada, setAnomaliaSelecionada] =
+        useState<Anomalia | null>(null);
+    const [mostrarDescartadas, setMostrarDescartadas] = useState(false);
 
     useEffect(() => {
-        api.get("/anomalias")
-            .then((response) => setAnomalias(response.data))
-            .catch((error) => console.error("Erro ao buscar anomalias:", error));
+        carregarAnomalias();
     }, []);
 
-    const problematicas = anomalias.filter((a) => {
-        const risco = a.classificacaoRisco?.toLowerCase();
+    function carregarAnomalias() {
+        api.get("/anomalias")
+            .then((response) => setAnomalias(response.data))
+            .catch((error) =>
+                console.error("Erro ao buscar anomalias:", error)
+            );
+    }
 
-        return (
-            a.ehAnomalia ||
+    const problematicas = anomalias.filter((anomalia) => {
+        const risco = anomalia.classificacaoRisco?.toLowerCase();
+
+        const ehProblematica =
+            anomalia.ehAnomalia ||
             risco === "alto" ||
             risco === "critico" ||
             risco === "crítico" ||
-            a.score >= 3
+            anomalia.score >= 3;
+
+        const estaDescartada = anomalia.status === 2;
+
+        return (
+            ehProblematica &&
+            (mostrarDescartadas || !estaDescartada)
         );
     });
 
@@ -78,19 +97,43 @@ function Anomalias() {
     function corRisco(risco: string | null) {
         const valor = risco?.toLowerCase();
 
-        if (valor === "critico" || valor === "crítico" || valor === "alto") {
+        if (
+            valor === "critico" ||
+            valor === "crítico" ||
+            valor === "alto"
+        ) {
             return "error";
         }
 
-        if (valor === "medio" || valor === "médio" || valor === "moderado") {
+        if (
+            valor === "medio" ||
+            valor === "médio" ||
+            valor === "moderado"
+        ) {
             return "warning";
         }
 
         return "success";
     }
 
+    function textoStatus(status: number) {
+        if (status === 2) return "Descartada";
+        if (status === 1) return "Confirmada";
+
+        return "Pendente";
+    }
+
+    function corStatus(status: number) {
+        if (status === 2) return "error";
+        if (status === 1) return "success";
+
+        return "warning";
+    }
+
     function alternarDiagnostico(id: number) {
-        setDiagnosticoAberto((atual) => (atual === id ? null : id));
+        setDiagnosticoAberto((atual) =>
+            atual === id ? null : id
+        );
     }
 
     function abrirFeedback(anomalia: Anomalia) {
@@ -98,15 +141,50 @@ function Anomalias() {
         setDialogFeedback(true);
     }
 
+    function fecharFeedback() {
+        setDialogFeedback(false);
+        setAnomaliaSelecionada(null);
+
+        // Atualiza os status depois que o feedback foi registrado.
+        carregarAnomalias();
+    }
+
     return (
         <Box>
             <SectionTitle
                 titulo="Anomalias"
-                subtitulo="Somente tags problemáticas detectadas automaticamente pela IA Marrari."
+                subtitulo="Tags problemáticas detectadas automaticamente pela IA Marrari."
                 icon={<WarningAmberRoundedIcon />}
             />
 
-            <Card sx={{ backgroundColor: "#1F2937", borderRadius: 3 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    mb: 2,
+                }}
+            >
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={mostrarDescartadas}
+                            onChange={(event) =>
+                                setMostrarDescartadas(
+                                    event.target.checked
+                                )
+                            }
+                        />
+                    }
+                    label="Mostrar descartadas"
+                />
+            </Box>
+
+            <Card
+                sx={{
+                    backgroundColor: "#1F2937",
+                    borderRadius: 3,
+                }}
+            >
                 <CardContent>
                     <Table>
                         <TableHead>
@@ -116,45 +194,91 @@ function Anomalias() {
                                 <TableCell>Score</TableCell>
                                 <TableCell>Risco</TableCell>
                                 <TableCell>Tendência</TableCell>
+                                <TableCell>Status</TableCell>
                                 <TableCell>Data</TableCell>
-                                <TableCell align="right">Ação</TableCell>
+                                <TableCell align="right">
+                                    Ação
+                                </TableCell>
                             </TableRow>
                         </TableHead>
 
                         <TableBody>
                             {problematicas.map((anomalia) => (
-                                <>
-                                    <TableRow key={anomalia.id} hover>
+                                <Fragment key={anomalia.id}>
+                                    <TableRow hover>
                                         <TableCell>
-                                            <Typography sx={{ fontWeight: 700 }}>
+                                            <Typography
+                                                sx={{
+                                                    fontWeight: 700,
+                                                }}
+                                            >
                                                 {anomalia.tagName}
                                             </Typography>
 
-                                            <Typography color="text.secondary" sx={{ fontSize: 13 }}>
+                                            <Typography
+                                                color="text.secondary"
+                                                sx={{ fontSize: 13 }}
+                                            >
                                                 {anomalia.clienteId}
                                             </Typography>
                                         </TableCell>
 
-                                        <TableCell>{anomalia.valor}</TableCell>
-                                        <TableCell>{anomalia.score.toFixed(2)}</TableCell>
+                                        <TableCell>
+                                            {anomalia.valor}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {anomalia.score.toFixed(2)}
+                                        </TableCell>
 
                                         <TableCell>
                                             <Chip
-                                                label={anomalia.classificacaoRisco ?? "sem risco"}
-                                                color={corRisco(anomalia.classificacaoRisco)}
+                                                label={
+                                                    anomalia.classificacaoRisco ??
+                                                    "sem risco"
+                                                }
+                                                color={corRisco(
+                                                    anomalia.classificacaoRisco
+                                                )}
                                                 size="small"
                                             />
                                         </TableCell>
 
-                                        <TableCell>{anomalia.tendenciaValor ?? "-"}</TableCell>
-                                        <TableCell>{formatarData(anomalia.dataDeteccao)}</TableCell>
+                                        <TableCell>
+                                            {anomalia.tendenciaValor ??
+                                                "-"}
+                                        </TableCell>
+
+                                        <TableCell>
+                                            <Chip
+                                                label={textoStatus(
+                                                    anomalia.status
+                                                )}
+                                                color={corStatus(
+                                                    anomalia.status
+                                                )}
+                                                size="small"
+                                            />
+                                        </TableCell>
+
+                                        <TableCell>
+                                            {formatarData(
+                                                anomalia.dataDeteccao
+                                            )}
+                                        </TableCell>
 
                                         <TableCell align="right">
                                             <Button
                                                 size="small"
                                                 variant="outlined"
-                                                startIcon={<VisibilityIcon />}
-                                                onClick={() => alternarDiagnostico(anomalia.id)}
+                                                startIcon={
+                                                    <VisibilityIcon />
+                                                }
+                                                onClick={() =>
+                                                    alternarDiagnostico(
+                                                        anomalia.id
+                                                    )
+                                                }
                                             >
                                                 Ver diagnóstico
                                             </Button>
@@ -162,27 +286,47 @@ function Anomalias() {
                                     </TableRow>
 
                                     <TableRow>
-                                        <TableCell colSpan={7} sx={{ py: 0, borderBottom: 0 }}>
+                                        <TableCell
+                                            colSpan={8}
+                                            sx={{
+                                                py: 0,
+                                                borderBottom: 0,
+                                            }}
+                                        >
                                             <Collapse
-                                                in={diagnosticoAberto === anomalia.id}
+                                                in={
+                                                    diagnosticoAberto ===
+                                                    anomalia.id
+                                                }
                                                 timeout="auto"
                                                 unmountOnExit
                                             >
                                                 <AnomaliaDiagnosticCard
-                                                    anomalia={anomalia}
-                                                    onRegistrarCausa={() => abrirFeedback(anomalia)}
+                                                    anomalia={
+                                                        anomalia
+                                                    }
+                                                    onRegistrarCausa={() =>
+                                                        abrirFeedback(
+                                                            anomalia
+                                                        )
+                                                    }
                                                 />
                                             </Collapse>
                                         </TableCell>
                                     </TableRow>
-                                </>
+                                </Fragment>
                             ))}
                         </TableBody>
                     </Table>
 
                     {problematicas.length === 0 && (
-                        <Typography color="text.secondary" sx={{ mt: 3 }}>
-                            Nenhuma tag problemática encontrada no momento.
+                        <Typography
+                            color="text.secondary"
+                            sx={{ mt: 3 }}
+                        >
+                            {mostrarDescartadas
+                                ? "Nenhuma anomalia encontrada."
+                                : "Nenhuma anomalia pendente ou confirmada encontrada no momento."}
                         </Typography>
                     )}
                 </CardContent>
@@ -191,7 +335,7 @@ function Anomalias() {
             {anomaliaSelecionada && (
                 <FeedbackAnomaliaDialog
                     open={dialogFeedback}
-                    onClose={() => setDialogFeedback(false)}
+                    onClose={fecharFeedback}
                     anomaliaId={anomaliaSelecionada.id}
                     tagName={anomaliaSelecionada.tagName}
                 />
